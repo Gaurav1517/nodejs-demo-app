@@ -1,0 +1,32 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App Updated version v.1.2</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List Updated version v.1.2 </h1>
+        <form action="/add" method="POST">
+            <input type="text" name="task" placeholder="New Task" required>
+            <button type="submit">Add Task</button>
+        </form>
+        <ul>
+            <% todos.forEach((todo, index) => { %>
+                <li class="<%= todo.completed ? 'completed' : '' %>">
+                    <%= todo.task %>
+                    <form action="/complete/<%= index %>" method="POST" style="display:inline;">
+                        <button type="submit" <% if (todo.completed) { %> disabled <% } %>>Complete</button>
+                    </form>
+                    <form action="/delete/<%= index %>" method="POST" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+</body>
+</html>
