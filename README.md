@@ -121,27 +121,99 @@ docker run hello-world
 
 ---
 
-### 2. Set Up GitHub Self-hosted Runner on EC2
+### 2. Setup GitHub Self-Hosted Runner on Amazon EC2
+
+### **1. Create folder & download runner**
 
 ```bash
-# Download and set up the GitHub runner
 mkdir actions-runner && cd actions-runner
-curl -o actions-runner-linux-x64.tar.gz -L https://github.com/actions/runner/releases/latest/download/actions-runner-linux-x64-2.316.0.tar.gz
-tar xzf ./actions-runner-linux-x64.tar.gz
 
-# Configure the runner
-./config.sh --url https://github.com/<your-username>/<repo-name> --token <your-registration-token>
+curl -o actions-runner-linux-x64-2.327.1.tar.gz -L \
+https://github.com/actions/runner/releases/download/v2.327.1/actions-runner-linux-x64-2.327.1.tar.gz
+```
 
-# Install and start the runner as a service
+### **2. Verify SHA-256 checksum**
+
+```bash
+echo "<SHA-256 checksum>  actions-runner-linux-x64-2.327.1.tar.gz" | sha256sum -c
+```
+
+ Output: `OK`
+
+---
+
+### **3. Extract the archive**
+
+```bash
+tar xzf actions-runner-linux-x64-2.327.1.tar.gz
+```
+
+---
+
+### **4. Install .NET Core dependencies (Amazon Linux 2023)**
+
+```bash
+sudo dnf install -y \
+  libicu \
+  krb5-libs \
+  zlib \
+  openssl \
+  lttng-ust \
+  libunwind \
+  libuuid \
+  --allowerasing --skip-broken
+```
+
+---
+
+### **5. Configure the runner**
+
+Go to GitHub → Your repo → **Settings > Actions > Runners > Add Runner**, and copy the command like below:
+
+```bash
+./config.sh --url https://github.com/<your-username>/<your-repo> --token <your-token>
+```
+
+ During config:
+
+* Accept defaults or set a custom runner name (e.g. `my-runner`)
+* Add any custom labels if needed (optional)
+
+---
+
+### **6. Run the runner**
+
+```bash
+./run.sh
+```
+
+ Output should include:
+
+```
+√ Connected to GitHub
+Listening for Jobs
+```
+
+---
+
+##  Optional: Run as a systemd service (auto-start on boot)
+
+To make sure the runner stays running and auto-starts:
+
+```bash
 sudo ./svc.sh install
 sudo ./svc.sh start
 ```
 
-> You can get the token from your GitHub repo:
-> `Settings > Actions > Runners > Add runner`
+Check status:
+
+```bash
+sudo ./svc.sh status
+```
 
 ![runner-active](/snap/runner-active.png)
 ![github-runner](/snap/github-runner.png)
+
 ---
 
 ### 3. Create a `Dockerfile` for Your Node App
